@@ -1,25 +1,37 @@
 import Header from './components/Header'
 import BookList from './components/BookList'  
+import AddBookForm from './components/AddBookForm'
+import SearchBook from './components/SearchBook'
+
 import { useEffect, useState } from 'react'
 
 function App() {
 
-  const [books, setBooks] = useState([])
+  const [books, setBooks] = useState(() => {
+    const savedBooks = localStorage.getItem('books')
+    return savedBooks ? JSON.parse(savedBooks) : []
+  })
+
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
-    const sampleBooks = [
-        { title: "Hujan", author: "Tere Liye"},
-        { title: "Atomic Habit", author: "James Clear"},
-        { title: "How to Win Friends and Influence People", author: "Dale Carnegie"},
-    ]
-    setBooks(sampleBooks)
-  }, [])
+    localStorage.setItem('books', JSON.stringify(books))
+  }, [books])
 
+  const addBook = (book) => {
+    setBooks([...books, book])
+  }
+
+  const filteredBooks = books.filter((book) =>
+    book.title.toLowerCase().includes(query.toLowerCase())
+  )
 
   return (
     <div>
       <Header />
-      <BookList books={books}/>
+      <AddBookForm onAdd={addBook} />
+      <SearchBook query={query} setQuery={setQuery} />
+      <BookList books={filteredBooks}/>
     </div>
   )
 }
